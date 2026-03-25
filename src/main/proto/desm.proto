@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+option java_package = "desm.plant.grpc";
+option java_outer_classname = "DesmProto";
+option java_multiple_files = true;
+
+package desm;
+
+// ─────────────────────────────────────────────
+//  Plant-to-plant gRPC service (Chang-Roberts)
+// ─────────────────────────────────────────────
+
+service PlantElectionService {
+  // Forward a Chang-Roberts election token around the ring.
+  rpc ForwardElectionToken (ElectionToken) returns (Ack);
+
+  // Broadcast the election result to the entire ring.
+  rpc AnnounceCoordinator  (CoordinatorAnnouncement) returns (Ack);
+
+  // Let a new plant announce itself to an existing neighbour.
+  rpc IntroducePlant        (PlantDescriptor) returns (Ack);
+}
+
+// A single Chang-Roberts token travelling clockwise around the ring.
+message ElectionToken {
+  int32  candidate_id  = 1;  // Plant ID of the current candidate
+  double candidate_bid = 2;  // Price bid offered by the candidate
+  int64  request_id    = 3;  // Energy-request being bid on (ms epoch)
+}
+
+// Sent by the winner to inform all plants who won (and at what price).
+message CoordinatorAnnouncement {
+  int32  winner_id    = 1;
+  double winning_bid  = 2;
+  int64  request_id   = 3;
+  int32  kwh_amount   = 4;  // kWh to produce (so plants can skip while busy)
+}
+
+// Used by a new plant to present itself to its neighbours.
+message PlantDescriptor {
+  int32  id      = 1;
+  string address = 2;
+  int32  port    = 3;
+}
+
+// Generic acknowledgement.
+message Ack {
+  bool success = 1;
+}
