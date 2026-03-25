@@ -45,14 +45,26 @@ sourceSets {
     }
 }
 
+// Detect OS/arch for protoc and grpc-java classifiers
+def osName = System.getProperty("os.name").toLowerCase(Locale.ROOT)
+def osArch = System.getProperty("os.arch").toLowerCase(Locale.ROOT)
+def protocClassifier
+if (osName.contains("mac") || osName.contains("darwin")) {
+    protocClassifier = osArch.contains("aarch64") ? "osx-aarch_64" : "osx-x86_64"
+} else if (osName.contains("win")) {
+    protocClassifier = "windows-x86_64"
+} else {
+    protocClassifier = osArch.contains("aarch64") ? "linux-aarch_64" : "linux-x86_64"
+}
+
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.13.0:linux-x86_64'
+        artifact = "com.google.protobuf:protoc:3.13.0:${protocClassifier}"
     }
 
     plugins {
         grpc {
-            artifact = 'io.grpc:protoc-gen-grpc-java:1.25.0:linux-x86_64'
+            artifact = "io.grpc:protoc-gen-grpc-java:1.25.0:${protocClassifier}"
         }
     }
 

@@ -352,7 +352,7 @@ public class ThermalPowerPlant {
             System.out.println("[Plant " + id + "] Election already active – ignoring request ts=" + req.getTimestamp());
             return;
         }
-        if (ring.size() == 0) return;
+        if (ring.isEmpty()) return;
 
         System.out.println("[Plant " + id + "] Energy request received: " + req.getKWh() + " kWh (ts=" + req.getTimestamp() + ")");
 
