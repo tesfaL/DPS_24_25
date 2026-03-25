@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option java_package = "plant.grpc";
+option java_outer_classname = "ElectionProto";
+
+// gRPC service that each Thermal Power Plant exposes.
+// Used for Chang-Roberts ring election and peer registration.
+service ElectionService {
+
+    // Forward an election message around the ring.
+    rpc SendElectionMessage(ElectionMessage) returns (Ack);
+
+    // Broadcast the winner of an election to all plants.
+    rpc AnnounceWinner(WinnerMessage) returns (Ack);
+
+    // A new plant presents itself to all existing plants.
+    rpc NotifyNewPlant(PlantMessage) returns (Ack);
+}
+
+// Carries the current best bid while circulating around the ring.
+message ElectionMessage {
+    double price      = 1; // bid price in $/kWh
+    int32  plantId    = 2; // ID of the plant that generated the bid
+    int64  requestTs  = 3; // timestamp of the energy request (used to match elections)
+    int32  kWh        = 4; // amount of energy requested
+}
+
+// Broadcast once the winner of an election is determined.
+message WinnerMessage {
+    int32  winnerId  = 1;
+    int64  requestTs = 2;
+    int32  kWh       = 3;
+}
+
+// Used by a new plant to introduce itself to peers.
+message PlantMessage {
+    int32  id      = 1;
+    string address = 2;
+    int32  port    = 3;
+}
+
+message Ack {
+    bool success = 1;
+}
